@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>理性と感情のシミュレーション</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; padding: 20px; }
+    section { margin-bottom: 30px; }
+    h2 { border-bottom: 2px solid #ccc; }
+    .bar { height: 10px; background: #ccc; margin: 5px 0; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1>理性と感情の意思決定シミュレーター</h1>
+
+<section>
+<h2>① 世界の条件</h2>
+食料量 <input type="range" id="food" min="0" max="10" value="5" oninput="foodVal.innerText=this.value"> <span id="foodVal">5</span><br>
+危険度 <input type="range" id="danger" min="0" max="10" value="5" oninput="dangerVal.innerText=this.value"> <span id="dangerVal">5</span><br>
+制限時間 <input type="range" id="time" min="1" max="20" value="10" oninput="timeVal.innerText=this.value"> <span id="timeVal">10</span>
+</section>
+
+<section>
+<h2>② 性格設定</h2>
+記憶タイプ：
+<select id="memory">
+  <option value="neutral">影響なし</option>
+  <option value="failure">失敗重視</option>
+  <option value="success">成功重視</option>
+</select><br>
+価値観：
+<select id="value">
+  <option value="survival">生存重視</option>
+  <option value="safety">安全重視</option>
+  <option value="growth">成長重視</option>
+</select>
+</section>
+
+<section>
+<h2>③ 感情の強さ</h2>
+食欲 <input type="range" id="hw" min="0" max="100" value="50" oninput="hwVal.innerText=this.value"> <span id="hwVal">50</span><br>
+睡眠欲 <input type="range" id="sw" min="0" max="100" value="50" oninput="swVal.innerText=this.value"> <span id="swVal">50</span><br>
+社会欲 <input type="range" id="socw" min="0" max="100" value="50" oninput="socwVal.innerText=this.value"> <span id="socwVal">50</span>
+</section>
+
+<button onclick="start()">▶ スタート</button>
+
+<section>
+<h2>④ 状態ログ</h2>
+<div id="status" style="white-space:pre-line; background:#f7f7f7; padding:10px; max-height:300px; overflow:auto;"></div>
+</section>
+
+<section>
+<h2>⑤ 結果</h2>
+<div id="result"></div>
+</section>
+
+<script>
+let agent;
+let world;
+let turn;
+let statusEl;
+let resultEl;sufunction start() {
+  statusEl = document.getElementById("stresultEl.textContent = document.getElementById("result");
+
+  statusEl.textContent = "シミュレーション開始\n";
+  resultEl.textContent = "";
+
+  agent = { energy: 50, hunger: 40, sleep: 30, social: 20 };
+  world = {
+    food: +document.getElementById("food").value,
+    danger: +document.getElementById("danger").value,
+    limit: +document.getElementById("time").value
+  };
+  weights = {
+    hunger: +document.getElementById("hw").value,
+    sleep: +document.getElementById("sw").value,
+    social: +document.getElementById("socw").value
+  };
+  turn = 0;
+  loop();energy <= 0) {
+      result.textContent = `生存時間：${turn} ターン`;
+      return;
+    }
+
+    const action = decide();
+    apply(action);
+    turn++;
+
+    status.textContent += `【ターン ${turn}】
+行動：${action}
+理由：${decide.lastRstatusEl.textContent +=ー：${agent.energy}
+食欲：${agent.hunger}
+睡眠欲：${agent.sleep}
+社会欲：${agent.social}
+
+`;
+
+    setTimeout(loop, 500);
+  } catch (e) {
+    status.textContent += `エラー発生：${e.message}`;
+  }
+}
+
+function decide() {
+  const actions = ["eat", "sleep", "explore", "socialon(s);
+    if (evalResult.score > bestScore) {
+      bestScore = evalResult.score;
+      best = a;
+      bestReason = evalResult.reason;
+    }
+  });
+  decide.lastReason = bestReason;
+  return best;
+}
+
+function simulate(action) {
+  const s = {...agent};
+  if (action === "eat") s.hunger -= world.food;
+  if (action === "sleep") s.sleep -= 20;
+  if (action === "explore") s.energy -= world.danger * 5;
+  if (action === "social") s.social -= 15;
+  return s;
+}
+
+function evaluateWithReason(s) {
+  let score = s.energy;
+  let reasons = [];
+
+  reasons.push(`理性：エネルギー ${s.energy}`);
+
+  if (value.value === "safety") {
+    score -= world.danger * 10;
+    reasons.push(`安全重視：危険度 ${world.danger}`);
+  }
+
+  if (weights.hunger !== 0) {
+    reasons.push(`食欲影響：${(s.hunger * weights.hunger * -0.01).toFixed(2)}`);
+  }
+  if (weights.sleep !== 0) {
+    reasons.push(`睡眠欲影響：${(s.sleep * weights.sleep * -0.01).toFixed(2)}`);
+  }
+  if (weights.social !== 0) {
+    reasons.push(`社会欲影響：${(s.social * weights.social * -0.01).toFixed(2)}`);
+  }
+
+  score += (s.hunger * weights.hunger + s.sleep * weights.sleep + s.social * weights.social) * -0.01;
+
+  return {
+    score: score,
+    reason: reasons.join(" / ")
+  };
+}
+
+function apply(action) {
+  if (action === "eat") { agent.energy += 10; agent.hunger -= 20; }
+  if (action === "sleep") { agent.energy += 15; agent.sleep -= 30; }
+  if (action === "explore") { agent.energy -= world.danger * 5; }
+  if (action === "social") { agent.energy -= 5; agent.social -= 20; }
+}
+</script>
+
+</body>
+</html>
